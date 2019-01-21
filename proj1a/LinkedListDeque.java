@@ -1,4 +1,4 @@
-public class LinkedListDeque<T> {
+public class LinkedListDeque<T>{
 	private class Node {
 		private T value;
 		private Node previous;
@@ -49,14 +49,18 @@ public class LinkedListDeque<T> {
         }
 	}
 
-	public void removeFirst() {
+	public T removeFirst() {
 	    current = sentinel.next;
+	    T obj = current.value;
 	    remove();
+	    return obj;
     }
 
-    public void removeLast() {
+    public T removeLast() {
 	    current = sentinel.previous;
+	    T obj = current.value;
 	    remove();
+	    return obj;
     }
 
 	public T get(int index) {

@@ -38,25 +38,41 @@ public class ArrayDeque<T> {
         return false;
     }
 
-    public void removeLast() {
+    public T removeFirst() {
+        T obj = list[0];
+        size--;
+        if (getUsageFactor() <= 0.25) {
+            resize(list.length / 2);
+        } else {
+            resize(list.length);
+        }
+        return obj;
+    }
+
+    public T removeLast() {
+        T obj = list[size - 1];
         list[size] = null;
         size--;
         if (getUsageFactor() <= 0.25) {
-            T[] a = (T[]) new Object[size / 2];
-            System.arraycopy(list, 0, a, 0, list.length);
-            list = a;
+            resize();
         }
+        return obj;
     }
 
-    public void removeFirst() {
-        T[] a = (T[]) new Object[list.length];
-        System.arraycopy(list, 1, a, 0,list.length - 1);
+    public void resize() {
+        T[] a = (T[]) new Object[list.length / 2];
+        System.arraycopy(list, 0, a, 0, size);
         list = a;
-        size--;
     }
 
-    public int getUsageFactor() {
-        return size / list.length;
+    public void resize(int length) {
+        T[] a = (T[]) new Object[length];
+        System.arraycopy(list, 1, a, 0, size);
+        list = a;
+    }
+
+    public double getUsageFactor() {
+        return (double)size / list.length;
     }
 
     public T get(int i) {
@@ -65,6 +81,10 @@ public class ArrayDeque<T> {
 
     public int size() {
         return size;
+    }
+
+    public int getLength() {
+        return list.length;
     }
 
     public void printDeque() {
