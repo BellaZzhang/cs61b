@@ -3,6 +3,10 @@ package byog.Core;
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 
+import edu.princeton.cs.introcs.StdDraw;
+
+import java.awt.*;
+
 public class Game {
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
@@ -13,6 +17,27 @@ public class Game {
      * Method used for playing a fresh game. The game should start from the main menu.
      */
     public void playWithKeyboard() {
+        ter.initialize(WIDTH, HEIGHT);
+        StdDraw.setPenColor(Color.white);
+        StdDraw.text(40, 20, "CS61B : THE GAME");
+        StdDraw.text(40, 16, "New Game (N)");
+        StdDraw.text(40, 14, "Load Game (L)");
+        StdDraw.text(40, 12, "Quit (Q)");
+        StdDraw.show();
+        while (true) {
+            if (StdDraw.hasNextKeyTyped()) {
+                char key = StdDraw.nextKeyTyped();
+                switch (key) {
+                    case 'n':
+                        new GenerateWorld(0);
+                        break;
+                    case 'l':
+                        new GenerateWorld(0);
+                        break;
+                    case 'q': //close
+                }
+            }
+        }
     }
 
     /**
@@ -31,6 +56,20 @@ public class Game {
         // TODO: Fill out this method to run the game using the input passed in,
         // and return a 2D tile representation of the world that would have been
         // drawn if the same inputs had been given to playWithKeyboard().
+
+        String makeSeed = "";
+        String movement = "";
+        for (int i = 1; i < input.length(); i ++) {
+            if (input.charAt(i) == "\d") {
+                makeSeed += input.charAt(i);
+            }
+            if (input.charAt(i) != (int)input.charAt(i)) {
+                movement += input.charAt(i);
+            }
+        }
+        int seed = Integer.parseInt(makeSeed);
+        GenerateWorld g = new GenerateWorld(seed);
+
 
         TETile[][] finalWorldFrame = null;
         return finalWorldFrame;
