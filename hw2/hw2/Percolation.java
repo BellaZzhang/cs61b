@@ -1,116 +1,117 @@
-package hw2;
+/* *****************************************************************************
+ *  Name:
+ *  Date:
+ *  Description:
+ **************************************************************************** */
+
+package percolation;
 
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
 
-    private boolean[] opened;
+    private WeightedQuickUnionUF uf;
+    private int N;
+    private boolean node[];
     private int top;
     private int bottom;
-    private int size;
-    private WeightedQuickUnionUF uf;
-    private int openSites = 0;
+    private int openNodes;
 
-    // create N-by-N grid, with all sites initially blocked
-    public Percolation(int N) {
-        if (N < 0) {
-            throw new IllegalArgumentException();
+    //n^2
+    //initialize n by n grid
+    //all nodes blocked
+    public Percolation(int n) {
+        uf= new WeightedQuickUnionUF(n * n + 2);
+        N = n;
+        node = new boolean[n * n + 2];
+        openNodes = 0;
+        top = 0;
+        bottom = n * n + 1;
+        node[top] = true;
+        node[bottom] = true;
+        for (int i = 1; i <= n; i++) {
+            uf.union(top, i);
         }
-        size = N;
-        top = N * N;
-        bottom = top + 1;
-        uf = new WeightedQuickUnionUF(top + 2);
-        opened = new boolean[N * N + 2];
+
     }
 
-    // open the site (row, col) if it is not open already
+  /*0
+    1  2  3  4  5
+    6  7  8  9  10
+    11 12 13 14 15
+    16 17 18 19 20
+    21 22 23 24 25
+    26*/
+
+    //open a node if blocked
+    //union to surrounding open nodes
     public void open(int row, int col) {
-        int index = gridToIndex(row, col),
-                left = index - 1,
-                right = index + 1,
-                up = index - size,
-                down = index + size;
-        opened[index] = true;
-        if (row == 0) {
-            uf.union(index, top);
+        int p = getNode(row, col);
+        if (!node[p]) {
+            node[p] = true;
+            int left = p - 1,
+                    right = p + 1,
+                    up = p - N,
+                    down = p + N;
+            connectSurrounding(p, left, right, up, down);
+            openNodes++;
         }
-        openSites++;
-        connectIfOpened(index, left, right, up, down);
     }
 
-    public void connectIfOpened(int index, int... others) {
-        if (index % size == 0) {
-            for (int i = 1; i < 4; i++) {
-                if (checkIndex(others[i])) {
-                    if (opened[others[i]]) {
-                        uf.union(index, others[i]);
-                    }
-                }
-            }
-        }
-        if ((index + 1) % size == 0) {
-            for (int i = 2; i < 4; i++) {
-                if (checkIndex(others[i])) {
-                    if (opened[others[i]]) {
-                        uf.union(index, others[i]);
-                    }
-                }
-            }
-            if (checkIndex(others[0])) {
-                if (opened[others[0]]) {
-                    uf.union(index, others[0]);
-                }
-            }
-        }
-        if (index % size != 0 && (index + 1) % size != 0) {
-            for (int i = 0; i < 4; i++) {
-                if (checkIndex(others[i])) {
-                    if (opened[others[i]]) {
-                        uf.union(index, others[i]);
-                    }
-                }
-            }
-        }
-
+    public boolean valid(int i) {
+        return i > 0 && i < N * N;
     }
 
-    // is the site (row, col) open?
+    public int getNode(int row, int col) {
+        return col + (row - 1) * N;
+    }
+
+    public void connectSurrounding(int p, int... d) {
+        if (node[d[0]] && d[0] % N != 0) {
+            uf.union(p, p - 1);
+        }
+        if (node[d[1]] && p % N != 0) {
+            uf.union(p, p + 1);
+        }
+        if (valid(d[2])) {
+            if (node[d[2]] && d[2] > -1) {
+                uf.union(p, p - N);
+            }
+        }
+        if (valid(d[3])) {
+            if (node[d[3]] && d[3] < N * N) {
+                uf.union(p, p + N);
+            }
+        }
+    }
+
+    //check if open
     public boolean isOpen(int row, int col) {
-        return opened[gridToIndex(row, col)];
+        return node[getNode(row, col)];
     }
 
-    // is the site (row, col) full?
+    //check if connected to top
     public boolean isFull(int row, int col) {
-        return uf.connected(gridToIndex(row, col), top);
+        return uf.connected(top, getNode(row, col)) && node[getNode(row, col)];
     }
 
-    // number of open sites
+    //return total open, including full
     public int numberOfOpenSites() {
-        return openSites;
+        return openNodes;
     }
 
-    // does the system percolate?
+    //check top connected to bottom
     public boolean percolates() {
-        for (int i = size * (size - 1); i < top; i++) {
-            if (uf.connected(top, i)) {
+        for (int i = 0; i < N; i++) {
+            if(uf.connected(top, N * N - i)) {
                 return true;
             }
         }
         return false;
     }
 
-    public boolean checkIndex(int index) {
-        return index > -1 && index < (top + 2);
-    }
-
-    public int gridToIndex(int x, int y) {
-        return y + x * size;
-    }
-
-    // use for unit testing (not required)
     public static void main(String[] args) {
 
     }
-
 
 }
